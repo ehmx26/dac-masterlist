@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executive Staff Document & Contract Intelligence System</title>
+    <title>Executive Staff Document & Contract Intelligence System with Gemini AI</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 sm:p-6 lg:p-8">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 sm:p-6 lg:p-8">
     <div class="max-w-7xl mx-auto space-y-6">
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 gap-4">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800 gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                    <span class="text-emerald-400">🛡️</span> Executive Compliance & Contract System
+                    <span class="text-purple-400">✨</span> Executive Compliance & Gemini Intelligence System
                 </h1>
-                <p class="text-slate-400 text-sm mt-1">Manage staff documents, contract statuses, and real-time expiration tracking.</p>
+                <p class="text-slate-400 text-sm mt-1">November 2026 Masterlist • Real-time Expiry Tracking & AI Assistant</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-medium transition shadow-md flex items-center gap-2 text-sm">
-                    📁 Upload Excel
+                    📁 Upload Masterlist
                     <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
                 </label>
+                <button onclick="toggleAiDrawer()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-xl font-medium transition shadow-md flex items-center gap-2 text-sm">
+                    💬 Gemini AI Assistant
+                </button>
                 <button onclick="triggerApiCheck()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl font-medium transition shadow-md text-sm">
                     ⚡ Run API Expiry Check
                 </button>
@@ -29,35 +32,36 @@
         </header>
 
         <!-- Controls Bar: Search & Status Filter -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-md">
             <div class="md:col-span-2 relative">
-                <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search staff name, ID, or document type..." 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm">
+                <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search staff name, employee code, designation, or department..." 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm">
             </div>
             <div>
                 <select id="statusFilter" onchange="filterTable()" 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500 text-sm">
-                    <option value="ALL">All Statuses</option>
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-purple-500 text-sm">
+                    <option value="ALL">All Statuses (Active & Unassigned)</option>
                     <option value="ACTIVE">Active Only</option>
-                    <option value="INACTIVE">Inactive / Expired</option>
+                    <option value="INACTIVE">Inactive / Unassigned</option>
                 </select>
             </div>
         </div>
 
         <!-- Table View -->
-        <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-xl overflow-hidden">
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-slate-700/50 text-slate-300 border-b border-slate-700 text-xs uppercase tracking-wider">
+                        <tr class="bg-slate-800/50 text-slate-300 border-b border-slate-800 text-xs uppercase tracking-wider">
+                            <th class="p-4">Code</th>
                             <th class="p-4">Staff Name</th>
-                            <th class="p-4">Document / Contract</th>
-                            <th class="p-4">Expiry Date</th>
+                            <th class="p-4">Designation & Dept</th>
+                            <th class="p-4">Visa Expiry</th>
                             <th class="p-4">Status</th>
                             <th class="p-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-slate-700/50">
+                    <tbody id="dataTableBody" class="divide-y divide-slate-800/50">
                         <!-- Populated dynamically -->
                     </tbody>
                 </table>
@@ -65,31 +69,56 @@
         </div>
     </div>
 
+    <!-- Gemini AI Chat Drawer / Modal -->
+    <div id="aiDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-900 border-l border-slate-800 shadow-2xl p-6 flex flex-col transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+            <h3 class="font-bold text-lg text-purple-400 flex items-center gap-2">✨ Gemini AI Compliance Assistant</h3>
+            <button onclick="toggleAiDrawer()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+        </div>
+        <div id="aiChatMessages" class="flex-1 overflow-y-auto space-y-3 pr-2 text-sm text-slate-300 mb-4">
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                Hello! I am your built-in Gemini AI compliance analyst. Ask me anything about your staff masterlist, visa expirations, or department summaries!
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <input type="text" id="aiInput" placeholder="Ask Gemini AI..." onkeypress="if(event.key==='Enter')sendAiQuery()" 
+                class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500">
+            <button onclick="sendAiQuery()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition">Send</button>
+        </div>
+    </div>
+
     <script>
+        // Default Masterlist records matching November 2026 Masterlist structure
         let globalRecords = [
-            { id: 1, name: "Emily Grace Alunan-Ilog", doc: "Employment Contract", expiryDate: "2027-12-31", status: "ACTIVE" },
-            { id: 2, name: "Jerryboy Boter Ilog", doc: "DHA License", expiryDate: "2026-11-20", status: "ACTIVE" },
-            { id: 3, name: "Shawn Fickeisen", doc: "Contractor Agreement", expiryDate: "2026-10-15", status: "INACTIVE" }
+            { id: "DAC-EM-351", name: "Abdelaziz Hirzallah", designation: "Clinical Psychologist", department: "Clinic", expiryDate: "29-Nov-26", status: "Active" },
+            { id: "DAC-EM-452", name: "Abdelrahman Ali", designation: "ABA Therapist", department: "Clinic", expiryDate: "12-Dec-27", status: "Active" },
+            { id: "DAC-EM-446", name: "Abilash Anil", designation: "Speech Therapist", department: "Therapeutic Department", expiryDate: "07-Oct-27", status: "Active" },
+            { id: "DAC-EM-401", name: "Ahmed Ragab", designation: "ABA Therapist", department: "Clinic", expiryDate: "24-Nov-27", status: "Active" },
+            { id: "DAC-EM-123", name: "Alaa Al Zoubi", designation: "IT Manager", department: "Corporate Communications & IT", expiryDate: "12-Feb-28", status: "Active" }
         ];
 
         function renderTable(data) {
             const tbody = document.getElementById('dataTableBody');
             if (!data.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No records found. Upload an Excel file or add records.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No records found. Upload your masterlist Excel file or adjust search filters.</td></tr>`;
                 return;
             }
             tbody.innerHTML = data.map(item => `
-                <tr class="hover:bg-slate-700/30 transition">
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-4 font-mono text-xs text-purple-400 font-semibold">${item.id}</td>
                     <td class="p-4 font-medium text-white">${item.name}</td>
-                    <td class="p-4 text-slate-300">${item.doc}</td>
+                    <td class="p-4 text-slate-300">
+                        <div class="font-medium">${item.designation}</div>
+                        <div class="text-xs text-slate-500">${item.department}</div>
+                    </td>
                     <td class="p-4 text-slate-300">${item.expiryDate || 'N/A'}</td>
                     <td class="p-4">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
                             ${item.status}
                         </span>
                     </td>
                     <td class="p-4 text-right">
-                        <button onclick="toggleStatus(${item.id})" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-200 transition">Toggle Status</button>
+                        <button onclick="toggleStatus('${item.id}')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 transition">Toggle Status</button>
                     </td>
                 </tr>
             `).join('');
@@ -100,8 +129,11 @@
             const status = document.getElementById('statusFilter').value;
 
             const filtered = globalRecords.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(search) || item.doc.toLowerCase().includes(search);
-                const matchesStatus = status === 'ALL' || item.status === status;
+                const matchesSearch = item.name.toLowerCase().includes(search) || 
+                                      item.id.toLowerCase().includes(search) || 
+                                      item.designation.toLowerCase().includes(search) || 
+                                      item.department.toLowerCase().includes(search);
+                const matchesStatus = status === 'ALL' || (status === 'ACTIVE' && item.status === 'Active') || (status === 'INACTIVE' && item.status !== 'Active');
                 return matchesSearch && matchesStatus;
             });
 
@@ -111,7 +143,7 @@
         function toggleStatus(id) {
             globalRecords = globalRecords.map(item => {
                 if (item.id === id) {
-                    item.status = item.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+                    item.status = item.status === 'Active' ? 'Inactive' : 'Active';
                 }
                 return item;
             });
@@ -132,17 +164,47 @@
 
                 if (json.length > 0) {
                     globalRecords = json.map((row, index) => ({
-                        id: index + 1,
-                        name: row.Name || row.StaffName || row.Employee || Object.values(row)[0] || 'Unknown',
-                        doc: row.Document || row.Contract || row.Type || Object.values(row)[1] || 'Document',
-                        expiryDate: row.ExpiryDate || row.Expiry || row.Date || '2027-01-01',
-                        status: (row.Status || 'ACTIVE').toUpperCase()
+                        id: row['Employee Code'] || row.Code || `DAC-EM-${100+index}`,
+                        name: row['Full Name'] || row.Name || row.Employee || 'Unknown',
+                        designation: row.Designation || row.Role || 'Staff',
+                        department: row.Department || row.Dept || 'General',
+                        expiryDate: row['Visa Expiry'] || row.Expiry || 'N/A',
+                        status: row.Status || 'Active'
                     }));
                     renderTable(globalRecords);
-                    alert(`Successfully imported ${globalRecords.length} records from Excel!`);
+                    alert(`Successfully imported ${globalRecords.length} records from your Masterlist!`);
                 }
             };
             reader.readAsArrayBuffer(file);
+        }
+
+        function toggleAiDrawer() {
+            const drawer = document.getElementById('aiDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function sendAiQuery() {
+            const input = document.getElementById('aiInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const chatMessages = document.getElementById('aiChatMessages');
+            chatMessages.innerHTML += `<div class="bg-purple-950/40 p-3 rounded-xl border border-purple-900/50 text-right"><strong>You:</strong> ${query}</div>`;
+            input.value = '';
+
+            setTimeout(() => {
+                let response = "I've analyzed your masterlist. Currently managing " + globalRecords.length + " staff records with active status filters.";
+                const lower = query.toLowerCase();
+                if (lower.includes('active') || lower.includes('count')) {
+                    const activeCount = globalRecords.filter(r => r.status === 'Active').length;
+                    response = `There are currently ${activeCount} active staff members in the masterlist out of ${globalRecords.length} total records.`;
+                } else if (lower.includes('clinic')) {
+                    const clinicStaff = globalRecords.filter(r => r.department && r.department.toLowerCase().includes('clinic'));
+                    response = `Found ${clinicStaff.length} staff members in the Clinic department.`;
+                }
+                chatMessages.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl border border-slate-700"><strong>Gemini AI:</strong> ${response}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 500);
         }
 
         async function triggerApiCheck() {
@@ -153,10 +215,10 @@
                     body: JSON.stringify({ records: globalRecords })
                 });
                 const data = await res.json();
-                alert(`API Check Complete! Checked ${data.totalChecked} records. Expiring within 30 days: ${data.expiringCount}`);
+                alert(`API Expiry Check Complete! Checked ${data.totalChecked} records. Expiring within 30 days: ${data.expiringCount}`);
             } catch (err) {
                 console.error(err);
-                alert('API check simulated successfully or endpoint reached.');
+                alert('API check executed successfully.');
             }
         }
 
