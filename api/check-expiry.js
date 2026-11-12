@@ -9,6 +9,7 @@ export default function handler(req, res) {
     const expiringSoon = records.filter(item => {
       if (!item.expiryDate) return false;
       const expDate = new Date(item.expiryDate);
+      if (isNaN(expDate)) return false;
       const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
       return diffDays >= 0 && diffDays <= 30;
     });
@@ -22,7 +23,7 @@ export default function handler(req, res) {
   }
 
   return res.status(200).json({
-    status: 'API is running successfully',
+    status: 'Executive Compliance API with Gemini AI is running successfully',
     timestamp: new Date().toISOString()
   });
 }
