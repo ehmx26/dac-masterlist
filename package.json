@@ -1,0 +1,12 @@
+{
+  "name": "executive-compliance-system",
+  "version": "1.0.0",
+  "description": "Executive Staff Document & Contract Intelligence System",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
