@@ -1,7 +1,7 @@
 {
   "name": "executive-compliance-system",
   "version": "1.0.0",
-  "description": "Executive Staff Document & Contract Intelligence System",
+  "description": "Executive Staff Document & Contract Intelligence System with Gemini AI",
   "main": "index.html",
   "scripts": {
     "start": "npx serve"
